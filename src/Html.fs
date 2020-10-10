@@ -1,6 +1,7 @@
 namespace Feliz.ViewEngine
 
-// fsharplint:disable
+open Fable.React
+
 
 type Html =
     static member inline a xs = Interop.createElement "a" xs

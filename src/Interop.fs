@@ -1,6 +1,7 @@
 namespace Feliz.ViewEngine
 
 open System
+open Fable.React
 open Feliz.ViewEngine.Styles
 
 #if FABLE_COMPILER
@@ -15,23 +16,23 @@ type EraseAttribute () =
 [<RequireQualifiedAccess>]
 module Interop =
     /// Output a string where the content has been HTML encoded.
-    let mkText (content : 'a) = content.ToString () |> ViewBuilder.escape |> Text
+    let mkText (content : 'a) = content.ToString () |> ViewBuilder.escape |> IReactProperty.Text
 
     let inline mkChildren (props: #seq<ReactElement>) = props |> List.ofSeq |> Children
 
     let inline reactElementWithChildren (name: string) (children: #seq<ReactElement>) : ReactElement =
-        Element (name, [ mkChildren children ])
+        Element (name, [ mkChildren children ]) :> ReactElement
     let inline reactElementWithChild (name: string) (child: 'a) : ReactElement =
-        Element (name, [ mkText child ])
+        Element (name, [ mkText child  ]) :> ReactElement
 
     let inline createElement name (props: IReactProperty list) : ReactElement =
-        Element (name, props)
+        Element (name, props) :> ReactElement
     let inline createElements (elements : ReactElement seq) : ReactElement =
-        Elements elements
+        Elements elements :> ReactElement
     let inline createVoidElement name (props: IReactProperty list) : ReactElement =
-        VoidElement (name, props)
-    let inline createTextElement (content : string) = ViewBuilder.escape content |> TextElement
-    let inline createRawTextElement (content : string) = TextElement content
+        VoidElement (name, props) :> _
+    let inline createTextElement (content : string) : ReactElement = ViewBuilder.escape content |> TextElement :> ReactElement
+    let inline createRawTextElement (content : string) = TextElement content :> ReactElement
 
     let mkAttr (key: string) (value: obj) : IReactProperty =
         let result =

@@ -19,17 +19,21 @@ namespace Feliz.ViewEngine
 open System
 open System.Text
 
+open Fable.React
+
 type IReactProperty =
     | KeyValue of string * obj
     | Children of ReactElement list
     | Text of string
 
 
-and ReactElement =
+and HtmlElement =
     | Element of string * IReactProperty list // An element which may contain properties
     | VoidElement of string * IReactProperty list // An empty self-closed element which may contain properties
     | TextElement of string
     | Elements of ReactElement seq
+
+    interface ReactElement
 
 [<RequireQualifiedAccess>]
 module ViewBuilder =
@@ -78,7 +82,7 @@ module ViewBuilder =
                 buildNode isHtml sb node
             sb += "</" += elemName +! ">"
 
-        match node with
+        match node :?> HtmlElement with
         | TextElement text -> sb +! text
         | VoidElement (name, props) ->
             let _, _, attrs = splitProps props
@@ -86,7 +90,7 @@ module ViewBuilder =
         | Element (name, props) ->
             let children, text, attrs = splitProps props
             match children, text, attrs with
-            | _, Some text, _ -> buildParentNode (name, attrs, TextElement text :: children)
+            | _, Some text, _ -> buildParentNode (name, attrs, TextElement text :> _ :: children)
             | _ -> buildParentNode (name, attrs, children)
         | Elements elements ->
             for element in elements do
